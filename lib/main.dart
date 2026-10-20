@@ -2,6 +2,43 @@
 // Scaffold, Text, Column, Image, etc.).
 import 'package:flutter/material.dart';
 
+// Liste STATIQUE des activités, déclarée directement dans le code
+// (le TP interdit backend et base de données).
+// List<Map<String, dynamic>> = une liste dont chaque élément est une
+// "fiche" (Map) associant des clés ("titre", ...) à des valeurs.
+final List<Map<String, dynamic>> activites = [
+  {
+    "id": 1, // numéro de l'activité
+    "titre": "Dessin et coloriage", // nom affiché en gras
+    "description": "Développement de la créativité", // texte secondaire
+    "icone": "🎨", // emoji affiché à gauche
+  },
+  {
+    "id": 2,
+    "titre": "Jeux éducatifs",
+    "description": "Apprentissage par le jeu",
+    "icone": "🧩",
+  },
+  {
+    "id": 3,
+    "titre": "Musique et chansons",
+    "description": "Éveil musical des enfants",
+    "icone": "🎵",
+  },
+  {
+    "id": 4,
+    "titre": "Lecture de contes",
+    "description": "Découverte des histoires",
+    "icone": "📚",
+  },
+  {
+    "id": 5,
+    "titre": "Activités sportives",
+    "description": "Développement de la motricité",
+    "icone": "⚽",
+  },
+];
+
 // main() est la PREMIÈRE fonction exécutée au démarrage de l'application.
 void main() {
   // runApp() lance l'application et affiche le widget MyApp.
@@ -28,7 +65,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
-//screen splash : ecran de demarage
+// ---------------------------------------------------------------
+// ÉCRAN DE DÉMARRAGE (Splash Screen)
+// ---------------------------------------------------------------
 
 // StatefulWidget car on a besoin de initState (code exécuté une fois
 // au démarrage de l'écran). Un StatelessWidget n'a pas initState.
@@ -108,7 +147,9 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// page principale
+// ---------------------------------------------------------------
+// PAGE PRINCIPALE
+// ---------------------------------------------------------------
 
 // StatelessWidget : pour l'instant la page ne change pas.
 class HomePage extends StatelessWidget {
@@ -179,10 +220,40 @@ class HomePage extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
 
-      // ----- 4. LE CONTENU PRINCIPAL -----
-      // Espace réservé : la liste des activités viendra ici (question 8).
-      body: const Center(
-        child: Text('La liste des activités sera ici'),
+      // ----- 4. LE CONTENU PRINCIPAL : la liste des activités -----
+      // ListView.builder = liste qui construit chaque élément à la demande.
+      body: ListView.builder(
+        // padding = marge de 10 pixels autour de la liste.
+        padding: const EdgeInsets.all(10),
+
+        // itemCount = nombre d'éléments à afficher (ici 5).
+        itemCount: activites.length,
+
+        // itemBuilder = fonction appelée UNE FOIS PAR ÉLÉMENT.
+        // index vaut 0, 1, 2, 3, 4 (la position de l'élément).
+        itemBuilder: (context, index) {
+          // On récupère l'activité à cette position.
+          final activite = activites[index];
+
+          // Card = rectangle avec ombre et coins arrondis.
+          return Card(
+            // ListTile = ligne standard : icône + titre + sous-titre.
+            child: ListTile(
+              // leading = à gauche : l'emoji, en grande taille.
+              leading: Text(
+                activite['icone'],
+                style: const TextStyle(fontSize: 32),
+              ),
+              // title = le titre de l'activité, en gras.
+              title: Text(
+                activite['titre'],
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              // subtitle = la description, sous le titre.
+              subtitle: Text(activite['description']),
+            ),
+          );
+        },
       ),
     );
   }
