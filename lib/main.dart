@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 
 // Liste STATIQUE des activités, déclarée directement dans le code
 // (le TP interdit backend et base de données).
-// List<Map<String, dynamic>> = une liste dont chaque élément est une
-// "fiche" (Map) associant des clés ("titre", ...) à des valeurs.
 final List<Map<String, dynamic>> activites = [
   {
     "id": 1, // numéro de l'activité
@@ -70,7 +68,7 @@ class MyApp extends StatelessWidget {
 // ---------------------------------------------------------------
 
 // StatefulWidget car on a besoin de initState (code exécuté une fois
-// au démarrage de l'écran). Un StatelessWidget n'a pas initState.
+// au démarrage de l'écran).
 class SplashScreen extends StatefulWidget {
   // Constructeur de SplashScreen.
   const SplashScreen({super.key});
@@ -81,7 +79,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 // Classe d'état : elle contient le code et la construction de l'écran.
-// Le "_" devant le nom = classe privée (utilisable seulement dans ce fichier).
 class _SplashScreenState extends State<SplashScreen> {
   // initState() s'exécute UNE SEULE FOIS, quand l'écran est créé.
   @override
@@ -89,20 +86,15 @@ class _SplashScreenState extends State<SplashScreen> {
     // Obligatoire : appelle d'abord l'initialisation de la classe parente.
     super.initState();
 
-    // Future.delayed = "attends cette durée, puis exécute ce code".
-    // Duration(seconds: 3) = attendre 3 secondes.
+    // Attend 3 secondes, puis exécute le code.
     Future.delayed(const Duration(seconds: 3), () {
       // Sécurité : si l'écran n'existe plus, on s'arrête.
       if (!mounted) return;
 
-      // pushReplacement = va vers un nouvel écran ET supprime le splash
+      // pushReplacement = va vers HomePage ET supprime le splash
       // de l'historique (le bouton retour ne revient pas au splash).
       Navigator.pushReplacement(
-        // context = position actuelle dans l'application.
         context,
-        // MaterialPageRoute = la transition vers le nouvel écran.
-        // builder construit l'écran de destination (HomePage).
-        // "_" = paramètre qu'on n'utilise pas.
         MaterialPageRoute(builder: (_) => const HomePage()),
       );
     });
@@ -111,29 +103,24 @@ class _SplashScreenState extends State<SplashScreen> {
   // build() décrit ce qui s'affiche à l'écran.
   @override
   Widget build(BuildContext context) {
-    // Scaffold = squelette de la page.
     return Scaffold(
       // Couleur de fond : blanc.
       backgroundColor: Colors.white,
-      // Center = centre son contenu au milieu de l'écran.
       body: Center(
         // Column = empile ses enfants verticalement.
         child: Column(
           // Centre les enfants dans la hauteur de l'écran.
           mainAxisAlignment: MainAxisAlignment.center,
-          // La liste des widgets empilés, de haut en bas.
           children: [
             // Affiche l'image depuis le dossier assets.
-            // width: 250 = largeur de 250 pixels (la hauteur s'adapte).
             Image.asset('assets/images/garderie.png', width: 250),
 
-            // SizedBox = espace vide de 20 pixels de hauteur.
+            // Espace vide de 20 pixels de hauteur.
             const SizedBox(height: 20),
 
             // Le nom de l'application.
             const Text(
               'Ma Garderie',
-              // style = apparence du texte.
               style: TextStyle(
                 fontSize: 36, // taille de la police
                 fontWeight: FontWeight.bold, // texte en gras
@@ -148,65 +135,104 @@ class _SplashScreenState extends State<SplashScreen> {
 }
 
 // ---------------------------------------------------------------
-// PAGE PRINCIPALE
+// PAGE PRINCIPALE (avec interactions)
 // ---------------------------------------------------------------
 
-// StatelessWidget : pour l'instant la page ne change pas.
-class HomePage extends StatelessWidget {
+// StatefulWidget : la page doit se redessiner quand on choisit
+// une entrée du menu (pour la surligner).
+class HomePage extends StatefulWidget {
   // Constructeur de HomePage.
   const HomePage({super.key});
 
+  // Crée l'objet "état" de la page.
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+// Classe d'état de la page principale.
+class _HomePageState extends State<HomePage> {
+  // Mémorise l'entrée du menu sélectionnée :
+  // 0 = Accueil, 1 = Activités, 2 = À propos.
+  int _menuSelectionne = 0;
+
+  // Fonction qui affiche un message (SnackBar) en bas de l'écran.
+  // "String texte" = le message à afficher, donné quand on l'appelle.
+  void _afficherMessage(String texte) {
+    // ScaffoldMessenger = gestionnaire qui affiche les SnackBar.
+    ScaffoldMessenger.of(context).showSnackBar(
+      // SnackBar = petit message temporaire en bas de l'écran.
+      SnackBar(
+        // content = le contenu du message.
+        content: Text(texte),
+        // duration = durée d'affichage : 2 secondes.
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  // Fonction appelée quand on clique sur une entrée du Drawer.
+  // index = numéro de l'entrée (0, 1 ou 2), nom = son texte.
+  void _choisirMenu(int index, String nom) {
+    // setState = dit à Flutter de redessiner l'écran avec la
+    // nouvelle valeur (ici, pour surligner l'entrée choisie).
+    setState(() {
+      _menuSelectionne = index;
+    });
+
+    // Navigator.pop = ferme le Drawer.
+    Navigator.pop(context);
+
+    // Affiche un message qui confirme le choix.
+    _afficherMessage('Menu : $nom');
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Scaffold = squelette de la page. Il a des emplacements prévus :
-    // appBar, drawer, floatingActionButton, body.
     return Scaffold(
       // ----- 1. LA BARRE DU HAUT (AppBar) -----
       appBar: AppBar(
-        // Le titre affiché dans la barre.
         title: const Text('Ma Garderie'),
-        // Couleur de fond de la barre.
         backgroundColor: Colors.blue,
-        // Couleur du texte et des icônes (titre, bouton menu).
         foregroundColor: Colors.white,
       ),
 
       // ----- 2. LE MENU LATÉRAL (Drawer) -----
-      // Flutter ajoute tout seul l'icône "hamburger" dans l'AppBar
-      // quand un drawer existe.
       drawer: Drawer(
-        // ListView = liste verticale qui peut défiler.
         child: ListView(
           children: [
-            // DrawerHeader = l'en-tête (la partie du haut) du menu.
+            // En-tête du menu.
             const DrawerHeader(
-              // decoration = le style de fond de l'en-tête.
               decoration: BoxDecoration(color: Colors.blue),
-              // Le texte affiché dans l'en-tête.
               child: Text(
                 'Ma Garderie',
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
 
-            // ListTile = une ligne de menu cliquable.
+            // Entrée 1 : Accueil.
             ListTile(
-              // leading = l'icône à gauche.
               leading: const Icon(Icons.home),
-              // title = le texte de la ligne.
               title: const Text('Accueil'),
-              // onTap = ce qui se passe au clic ({} = rien pour l'instant).
-              onTap: () {},
+              // selected = true surligne l'entrée si elle est choisie.
+              selected: _menuSelectionne == 0,
+              // Au clic, on appelle _choisirMenu avec 0 et "Accueil".
+              onTap: () => _choisirMenu(0, 'Accueil'),
             ),
+
+            // Entrée 2 : Activités.
             ListTile(
               leading: const Icon(Icons.palette),
               title: const Text('Activités'),
-              onTap: () {},
+              selected: _menuSelectionne == 1,
+              onTap: () => _choisirMenu(1, 'Activités'),
             ),
+
+            // Entrée 3 : À propos.
             ListTile(
               leading: const Icon(Icons.info),
               title: const Text('À propos'),
-              onTap: () {},
+              selected: _menuSelectionne == 2,
+              onTap: () => _choisirMenu(2, 'À propos'),
             ),
           ],
         ),
@@ -214,43 +240,39 @@ class HomePage extends StatelessWidget {
 
       // ----- 3. LE BOUTON FLOTTANT (+) -----
       floatingActionButton: FloatingActionButton(
-        // onPressed = action au clic (vide pour l'instant).
-        onPressed: () {},
+        // Au clic : affiche le message "Nouvelle activité".
+        onPressed: () => _afficherMessage('Nouvelle activité'),
         // L'icône affichée dans le bouton : le signe +.
         child: const Icon(Icons.add),
       ),
 
-      // ----- 4. LE CONTENU PRINCIPAL : la liste des activités -----
-      // ListView.builder = liste qui construit chaque élément à la demande.
+      // ----- 4. LA LISTE DES ACTIVITÉS -----
       body: ListView.builder(
-        // padding = marge de 10 pixels autour de la liste.
+        // Marge de 10 pixels autour de la liste.
         padding: const EdgeInsets.all(10),
-
-        // itemCount = nombre d'éléments à afficher (ici 5).
+        // Nombre d'éléments à afficher (5).
         itemCount: activites.length,
-
-        // itemBuilder = fonction appelée UNE FOIS PAR ÉLÉMENT.
-        // index vaut 0, 1, 2, 3, 4 (la position de l'élément).
+        // Fonction appelée une fois par élément.
         itemBuilder: (context, index) {
           // On récupère l'activité à cette position.
           final activite = activites[index];
 
-          // Card = rectangle avec ombre et coins arrondis.
           return Card(
-            // ListTile = ligne standard : icône + titre + sous-titre.
             child: ListTile(
-              // leading = à gauche : l'emoji, en grande taille.
+              // L'emoji à gauche.
               leading: Text(
                 activite['icone'],
                 style: const TextStyle(fontSize: 32),
               ),
-              // title = le titre de l'activité, en gras.
+              // Le titre en gras.
               title: Text(
                 activite['titre'],
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              // subtitle = la description, sous le titre.
+              // La description sous le titre.
               subtitle: Text(activite['description']),
+              // Au clic sur la carte : affiche le titre dans un SnackBar.
+              onTap: () => _afficherMessage(activite['titre']),
             ),
           );
         },
