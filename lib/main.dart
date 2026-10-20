@@ -1,15 +1,13 @@
-// Importe la bibliothèque Material (tous les widgets de base :
-// Scaffold, Text, Column, Image, etc.).
+// Importe la bibliothèque Material (tous les widgets de base).
 import 'package:flutter/material.dart';
 
-// Liste STATIQUE des activités, déclarée directement dans le code
-// (le TP interdit backend et base de données).
+// Liste STATIQUE des activités, déclarée directement dans le code.
 final List<Map<String, dynamic>> activites = [
   {
-    "id": 1, // numéro de l'activité
-    "titre": "Dessin et coloriage", // nom affiché en gras
-    "description": "Développement de la créativité", // texte secondaire
-    "icone": "🎨", // emoji affiché à gauche
+    "id": 1,
+    "titre": "Dessin et coloriage",
+    "description": "Développement de la créativité",
+    "icone": "🎨",
   },
   {
     "id": 2,
@@ -37,62 +35,54 @@ final List<Map<String, dynamic>> activites = [
   },
 ];
 
-// main() est la PREMIÈRE fonction exécutée au démarrage de l'application.
+// Première fonction exécutée au démarrage.
 void main() {
-  // runApp() lance l'application et affiche le widget MyApp.
   runApp(const MyApp());
 }
 
-// MyApp est le widget racine de l'application.
-// StatelessWidget = widget FIXE (aucune donnée qui change).
+// Widget racine de l'application (fixe).
 class MyApp extends StatelessWidget {
-  // Constructeur de MyApp.
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // MaterialApp = l'application complète avec le style Material.
     return MaterialApp(
-      // Nom de l'application.
       title: 'Ma Garderie',
-      // Cache le bandeau rouge "DEBUG".
       debugShowCheckedModeBanner: false,
-      // Le premier écran affiché est le SplashScreen.
+      // theme = le style global de l'application.
+      // colorSchemeSeed : Flutter génère toute une palette de couleurs
+      // harmonieuses à partir d'un bleu (boutons, sélection, etc.).
+      theme: ThemeData(
+        colorSchemeSeed: Colors.blue,
+        useMaterial3: true,
+      ),
       home: const SplashScreen(),
     );
   }
 }
 
 // ---------------------------------------------------------------
-// ÉCRAN DE DÉMARRAGE (Splash Screen)
+// ÉCRAN DE DÉMARRAGE (Splash Screen) - image en PLEIN ÉCRAN
 // ---------------------------------------------------------------
 
-// StatefulWidget car on a besoin de initState (code exécuté une fois
-// au démarrage de l'écran).
 class SplashScreen extends StatefulWidget {
-  // Constructeur de SplashScreen.
   const SplashScreen({super.key});
 
-  // Crée l'objet "état" qui contient la logique de l'écran.
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-// Classe d'état : elle contient le code et la construction de l'écran.
 class _SplashScreenState extends State<SplashScreen> {
-  // initState() s'exécute UNE SEULE FOIS, quand l'écran est créé.
+  // Exécuté une seule fois au démarrage de l'écran.
   @override
   void initState() {
-    // Obligatoire : appelle d'abord l'initialisation de la classe parente.
     super.initState();
 
-    // Attend 3 secondes, puis exécute le code.
+    // Après 3 secondes, on va à la page principale.
     Future.delayed(const Duration(seconds: 3), () {
       // Sécurité : si l'écran n'existe plus, on s'arrête.
       if (!mounted) return;
-
-      // pushReplacement = va vers HomePage ET supprime le splash
-      // de l'historique (le bouton retour ne revient pas au splash).
+      // pushReplacement : remplace le splash (pas de retour possible).
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomePage()),
@@ -100,35 +90,76 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
-  // build() décrit ce qui s'affiche à l'écran.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Couleur de fond : blanc.
-      backgroundColor: Colors.white,
-      body: Center(
-        // Column = empile ses enfants verticalement.
-        child: Column(
-          // Centre les enfants dans la hauteur de l'écran.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Affiche l'image depuis le dossier assets.
-            Image.asset('assets/images/garderie.png', width: 250),
+      // Couleur crème = couleur du fond de l'image (au cas où).
+      backgroundColor: const Color(0xFFFFFBF0),
+      // Stack = empile ses enfants les uns SUR les autres.
+      // StackFit.expand = les enfants prennent tout l'écran.
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Couche 1 : l'image en plein écran.
+          // BoxFit.cover = l'image remplit tout l'écran (elle peut être
+          // légèrement rognée sur les bords, sans être déformée).
+          Image.asset(
+            'assets/images/garderie.png',
+            fit: BoxFit.cover,
+          ),
 
-            // Espace vide de 20 pixels de hauteur.
-            const SizedBox(height: 20),
-
-            // Le nom de l'application.
-            const Text(
-              'Ma Garderie',
-              style: TextStyle(
-                fontSize: 36, // taille de la police
-                fontWeight: FontWeight.bold, // texte en gras
-                color: Colors.blue, // couleur bleue
+          // Couche 2 : le titre, placé en bas de l'écran.
+          // Positioned = place le widget à un endroit précis du Stack.
+          Positioned(
+            left: 30,
+            right: 30,
+            bottom: 60,
+            // Container = boîte avec fond et coins arrondis,
+            // pour que le texte reste lisible sur l'image.
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                // Blanc légèrement transparent (opacité 85 %).
+                color: const Color.fromRGBO(255, 255, 255, 0.85),
+                // Coins arrondis.
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Column(
+                // La colonne prend seulement la hauteur nécessaire.
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Text.rich = un texte avec plusieurs couleurs.
+                  const Text.rich(
+                    TextSpan(
+                      style: TextStyle(
+                        fontSize: 42,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      children: [
+                        // "Ma " en bleu.
+                        TextSpan(
+                          text: 'Ma ',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                        // "Garderie" en orange.
+                        TextSpan(
+                          text: 'Garderie',
+                          style: TextStyle(color: Colors.orange),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  // Petit message de bienvenue.
+                  const Text(
+                    'Bienvenue',
+                    style: TextStyle(fontSize: 20, color: Colors.black54),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -138,69 +169,61 @@ class _SplashScreenState extends State<SplashScreen> {
 // PAGE PRINCIPALE (avec interactions)
 // ---------------------------------------------------------------
 
-// StatefulWidget : la page doit se redessiner quand on choisit
-// une entrée du menu (pour la surligner).
 class HomePage extends StatefulWidget {
-  // Constructeur de HomePage.
   const HomePage({super.key});
 
-  // Crée l'objet "état" de la page.
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-// Classe d'état de la page principale.
 class _HomePageState extends State<HomePage> {
-  // Mémorise l'entrée du menu sélectionnée :
-  // 0 = Accueil, 1 = Activités, 2 = À propos.
+  // Entrée du menu sélectionnée : 0 = Accueil, 1 = Activités, 2 = À propos.
   int _menuSelectionne = 0;
 
-  // Fonction qui affiche un message (SnackBar) en bas de l'écran.
-  // "String texte" = le message à afficher, donné quand on l'appelle.
+  // Affiche un message (SnackBar) en bas de l'écran.
   void _afficherMessage(String texte) {
-    // ScaffoldMessenger = gestionnaire qui affiche les SnackBar.
     ScaffoldMessenger.of(context).showSnackBar(
-      // SnackBar = petit message temporaire en bas de l'écran.
       SnackBar(
-        // content = le contenu du message.
         content: Text(texte),
-        // duration = durée d'affichage : 2 secondes.
         duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  // Fonction appelée quand on clique sur une entrée du Drawer.
-  // index = numéro de l'entrée (0, 1 ou 2), nom = son texte.
+  // Appelée quand on clique sur une entrée du Drawer.
   void _choisirMenu(int index, String nom) {
-    // setState = dit à Flutter de redessiner l'écran avec la
-    // nouvelle valeur (ici, pour surligner l'entrée choisie).
+    // setState : redessine l'écran avec la nouvelle sélection.
     setState(() {
       _menuSelectionne = index;
     });
-
-    // Navigator.pop = ferme le Drawer.
+    // Ferme le Drawer.
     Navigator.pop(context);
-
-    // Affiche un message qui confirme le choix.
+    // Confirme le choix par un message.
     _afficherMessage('Menu : $nom');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // ----- 1. LA BARRE DU HAUT (AppBar) -----
+      // Fond bleu très clair pour toute la page.
+      backgroundColor: const Color(0xFFF3F8FF),
+
+      // ----- 1. APPBAR -----
       appBar: AppBar(
-        title: const Text('Ma Garderie'),
+        // centerTitle = titre centré.
+        centerTitle: true,
+        title: const Text(
+          'Ma Garderie',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
 
-      // ----- 2. LE MENU LATÉRAL (Drawer) -----
+      // ----- 2. DRAWER -----
       drawer: Drawer(
         child: ListView(
           children: [
-            // En-tête du menu.
             const DrawerHeader(
               decoration: BoxDecoration(color: Colors.blue),
               child: Text(
@@ -208,26 +231,18 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
-
-            // Entrée 1 : Accueil.
             ListTile(
               leading: const Icon(Icons.home),
               title: const Text('Accueil'),
-              // selected = true surligne l'entrée si elle est choisie.
               selected: _menuSelectionne == 0,
-              // Au clic, on appelle _choisirMenu avec 0 et "Accueil".
               onTap: () => _choisirMenu(0, 'Accueil'),
             ),
-
-            // Entrée 2 : Activités.
             ListTile(
               leading: const Icon(Icons.palette),
               title: const Text('Activités'),
               selected: _menuSelectionne == 1,
               onTap: () => _choisirMenu(1, 'Activités'),
             ),
-
-            // Entrée 3 : À propos.
             ListTile(
               leading: const Icon(Icons.info),
               title: const Text('À propos'),
@@ -238,44 +253,101 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
 
-      // ----- 3. LE BOUTON FLOTTANT (+) -----
+      // ----- 3. BOUTON FLOTTANT (+) -----
       floatingActionButton: FloatingActionButton(
-        // Au clic : affiche le message "Nouvelle activité".
+        // Fond bleu et icône blanche.
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
         onPressed: () => _afficherMessage('Nouvelle activité'),
-        // L'icône affichée dans le bouton : le signe +.
         child: const Icon(Icons.add),
       ),
 
-      // ----- 4. LA LISTE DES ACTIVITÉS -----
-      body: ListView.builder(
-        // Marge de 10 pixels autour de la liste.
-        padding: const EdgeInsets.all(10),
-        // Nombre d'éléments à afficher (5).
-        itemCount: activites.length,
-        // Fonction appelée une fois par élément.
-        itemBuilder: (context, index) {
-          // On récupère l'activité à cette position.
-          final activite = activites[index];
-
-          return Card(
-            child: ListTile(
-              // L'emoji à gauche.
-              leading: Text(
-                activite['icone'],
-                style: const TextStyle(fontSize: 32),
-              ),
-              // Le titre en gras.
-              title: Text(
-                activite['titre'],
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              // La description sous le titre.
-              subtitle: Text(activite['description']),
-              // Au clic sur la carte : affiche le titre dans un SnackBar.
-              onTap: () => _afficherMessage(activite['titre']),
+      // ----- 4. CONTENU -----
+      // Column = empile : d'abord le message de bienvenue, puis la liste.
+      body: Column(
+        children: [
+          // Bandeau de bienvenue.
+          Container(
+            // width: double.infinity = toute la largeur disponible.
+            width: double.infinity,
+            margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE3F0FF),
+              borderRadius: BorderRadius.circular(16),
             ),
-          );
-        },
+            child: const Column(
+              // Aligne le texte à gauche.
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'BONJOUR !',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.blueGrey,
+                    letterSpacing: 1,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Quelle activité aujourd’hui ? ☀️',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+
+          // Expanded = la liste prend tout l'espace restant sous le bandeau.
+          // (Sans Expanded, une ListView dans une Column provoque une erreur.)
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: activites.length,
+              itemBuilder: (context, index) {
+                final activite = activites[index];
+
+                return Card(
+                  // Carte blanche, ombre légère, coins arrondis.
+                  color: Colors.white,
+                  elevation: 2,
+                  margin: const EdgeInsets.only(bottom: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    // L'emoji dans un carré arrondi coloré.
+                    leading: Container(
+                      width: 52,
+                      height: 52,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF0E0),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        activite['icone'],
+                        style: const TextStyle(fontSize: 28),
+                      ),
+                    ),
+                    title: Text(
+                      activite['titre'],
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(activite['description']),
+                    // trailing = à droite : une petite flèche.
+                    trailing: const Icon(Icons.chevron_right),
+                    // Au clic : affiche le titre dans un SnackBar.
+                    onTap: () => _afficherMessage(activite['titre']),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
