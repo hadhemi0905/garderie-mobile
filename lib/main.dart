@@ -108,18 +108,82 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// ecran principale de l'app
+// page principale
 
-// Widget fixe : pour l'instant la page ne change pas.
+// StatelessWidget : pour l'instant la page ne change pas.
 class HomePage extends StatelessWidget {
   // Constructeur de HomePage.
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Page simple avec un texte au centre.
-    return const Scaffold(
-      body: Center(child: Text('Page principale')),
+    // Scaffold = squelette de la page. Il a des emplacements prévus :
+    // appBar, drawer, floatingActionButton, body.
+    return Scaffold(
+      // ----- 1. LA BARRE DU HAUT (AppBar) -----
+      appBar: AppBar(
+        // Le titre affiché dans la barre.
+        title: const Text('Ma Garderie'),
+        // Couleur de fond de la barre.
+        backgroundColor: Colors.blue,
+        // Couleur du texte et des icônes (titre, bouton menu).
+        foregroundColor: Colors.white,
+      ),
+
+      // ----- 2. LE MENU LATÉRAL (Drawer) -----
+      // Flutter ajoute tout seul l'icône "hamburger" dans l'AppBar
+      // quand un drawer existe.
+      drawer: Drawer(
+        // ListView = liste verticale qui peut défiler.
+        child: ListView(
+          children: [
+            // DrawerHeader = l'en-tête (la partie du haut) du menu.
+            const DrawerHeader(
+              // decoration = le style de fond de l'en-tête.
+              decoration: BoxDecoration(color: Colors.blue),
+              // Le texte affiché dans l'en-tête.
+              child: Text(
+                'Ma Garderie',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+
+            // ListTile = une ligne de menu cliquable.
+            ListTile(
+              // leading = l'icône à gauche.
+              leading: const Icon(Icons.home),
+              // title = le texte de la ligne.
+              title: const Text('Accueil'),
+              // onTap = ce qui se passe au clic ({} = rien pour l'instant).
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.palette),
+              title: const Text('Activités'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: const Text('À propos'),
+              onTap: () {},
+            ),
+          ],
+        ),
+      ),
+
+      // ----- 3. LE BOUTON FLOTTANT (+) -----
+      floatingActionButton: FloatingActionButton(
+        // onPressed = action au clic (vide pour l'instant).
+        onPressed: () {},
+        // L'icône affichée dans le bouton : le signe +.
+        child: const Icon(Icons.add),
+      ),
+
+      // ----- 4. LE CONTENU PRINCIPAL -----
+      // Espace réservé : la liste des activités viendra ici (question 8).
+      body: const Center(
+        child: Text('La liste des activités sera ici'),
+      ),
     );
   }
 }
